@@ -1,0 +1,13 @@
+# The dsh-opencode-session-header bundle patch: ONE insert over the profile root.
+#
+# The inserted row names this same package, whose root export is the Cordis
+# plugin, so the bundle and the plugin ship as one package: selecting the bundle
+# is what adds the row, and no profile YAML edit is needed.
+#
+# A profile that installs this package must not also declare the row by hand —
+# two rows with the same id would both mount. Use the entry form only for the
+# no-install variant, where `name` is an absolute path to index.js (see README).
+
+- insert:
+    - id: opencode-session-header
+      name: "dsh-plugin-opencode-session-header"

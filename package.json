@@ -1,13 +1,14 @@
 {
   "name": "dsh-plugin-opencode-session-header",
-  "version": "1.0.0",
-  "description": "DeepSeek Harness plugin that sends the OpenCode gateway's required x-opencode-session header on OpenCode and OpenCode Go routes.",
+  "version": "1.1.0",
+  "description": "DeepSeek Harness bundle and plugin that sends the OpenCode gateway's required x-opencode-session header on OpenCode and OpenCode Go routes.",
   "keywords": [
     "dsh",
     "deepseek-harness",
     "opencode",
     "opencode-go",
-    "plugin"
+    "plugin",
+    "bundle"
   ],
   "license": "MIT",
   "type": "module",
@@ -18,13 +19,20 @@
       "types": "./index.d.ts",
       "default": "./index.js"
     },
+    "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json"
   },
   "files": [
     "index.js",
     "index.d.ts",
+    "cordis.patch.yml",
     "README.md"
   ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
   "engines": {
     "node": "^22.19 || >=24"
   },

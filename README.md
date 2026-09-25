@@ -29,29 +29,26 @@
 
 ## Установка
 
-Из GitHub:
+Пакет объявляет `dsh.bundle`, поэтому он ставится и управляется как бандл — через
+страницу **Plugins** в Web UI или командой:
 
 ```sh
 dsh plugin --profile web add git+https://github.com/Shiccah/dsh-opencode-session-header.git
 ```
 
-Локально из клона или из рабочего каталога:
+Патч бандла сам вставляет запись `opencode-session-header` в композицию профиля:
+**править YAML не нужно**, и вручную добавлять такую же запись нельзя — две строки
+с одним id смонтируют плагин дважды.
+
+Локально, из клона или рабочего каталога:
 
 ```sh
 git clone git@github.com:Shiccah/dsh-opencode-session-header.git
 dsh plugin --profile web add ./dsh-opencode-session-header
 ```
 
-Затем добавьте запись в `~/.dsh/profiles/web/cordis.patch.yml`:
-
-```yaml
-- insert:
-    - id: opencode-session-header
-      name: "dsh-plugin-opencode-session-header"
-```
-
-Установка не обязательна: загрузчик принимает и абсолютный путь к файлу, тогда
-пакет в профиль не добавляется вообще (проверено на живой композиции):
+Вариант без установки: загрузчик принимает абсолютный путь к файлу, тогда пакет
+в профиль не добавляется вообще (проверено на живой композиции):
 
 ```yaml
 - insert:
