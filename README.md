@@ -62,6 +62,10 @@ dsh plugin --profile web add ./dsh-opencode-session-header
 dsh --profile web --dump-config | grep -A 3 opencode-session-header
 ```
 
+Запись должна быть ровно одна. Отключить плагин, не удаляя пакет, можно на той же
+странице **Plugins** (или `dsh plugin --profile web remove
+dsh-plugin-opencode-session-header` для полного удаления).
+
 Профиль `web` подхватывает правки patch-слоя на лету (`patchReload: live`),
 поэтому запись монтируется в уже запущенный процесс; если в логе появилось
 `failed to import` — пакет не резолвится из каталога профиля, перезапустите
