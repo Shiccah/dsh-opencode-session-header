@@ -78,10 +78,11 @@ export function apply(ctx, config) {
   const injectIntoModels = (models) => {
     if (injected.has(models) || typeof models?.streamSimple !== 'function') return false
     const original = models.streamSimple
+    const wrapper = function streamSimpleWithOpenCodeSession(model, context, streamOptions) {
+      return original.call(this, model, context, withSessionHeader(model, streamOptions, options))
+    }
     try {
-      models.streamSimple = function streamSimpleWithOpenCodeSession(model, context, streamOptions) {
-        return original.call(this, model, context, withSessionHeader(model, streamOptions, options))
-      }
+      models.streamSimple = wrapper
     } catch (error) {
       // A frozen collection would otherwise turn every request into a failure;
       // report it once and let the request proceed without the header.
@@ -92,7 +93,12 @@ export function apply(ctx, config) {
     }
     injected.add(models)
     undo.push(() => {
-      models.streamSimple = original
+      // Restore the exact descriptor instead of assigning back: the collection's
+      // prototype owns the real method, so a plain assignment would leave an own
+      // property shadowing it after unload.
+      if (Object.getOwnPropertyDescriptor(models, 'streamSimple')?.value === wrapper) {
+        delete models.streamSimple
+      }
       injected.delete(models)
     })
     return true
@@ -107,7 +113,7 @@ export function apply(ctx, config) {
     if (adapter === null || typeof adapter !== 'object' || wrapped.has(adapter)) return
     const original = adapter.current
     if (typeof original !== 'function') return
-    adapter.current = function currentWithOpenCodeSession(...args) {
+    const wrapper = function currentWithOpenCodeSession(...args) {
       const snapshot = original.apply(this, args)
       const models = snapshot?.models
       if (models !== undefined && !injectIntoModels(models) && !inert.has(adapter)) {
@@ -119,9 +125,14 @@ export function apply(ctx, config) {
       }
       return snapshot
     }
+    adapter.current = wrapper
     wrapped.add(adapter)
     undo.push(() => {
-      adapter.current = original
+      // Same reason as for the model collection: `current` is a prototype method,
+      // so restoring the exact descriptor is what actually removes the wrapper.
+      if (Object.getOwnPropertyDescriptor(adapter, 'current')?.value === wrapper) {
+        delete adapter.current
+      }
       wrapped.delete(adapter)
     })
   }

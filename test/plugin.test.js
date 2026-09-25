@@ -4,25 +4,37 @@ import { test } from 'node:test'
 import { apply, inject, name } from '../index.js'
 
 /** A stand-in for the pi-ai adapter: `current()` hands back one snapshot. */
-function fakeAdapter(models) {
-  return {
-    snapshots: 0,
-    current() {
+function fakeAdapter(models, { prototypeMethods = true } = {}) {
+  const adapter = { snapshots: 0 }
+  if (prototypeMethods) {
+    // The harness adapter and the pi-ai collection keep their methods on the
+    // prototype; own-property shadowing is what the plugin relies on.
+    const prototype = {
+      current() {
+        this.snapshots += 1
+        return { profiles: new Map(), models }
+      },
+    }
+    Object.setPrototypeOf(adapter, prototype)
+  } else {
+    adapter.current = function current() {
       this.snapshots += 1
       return { profiles: new Map(), models }
-    },
+    }
   }
+  return adapter
 }
 
 /** A stand-in for the pi-ai `Models` collection. */
 function fakeModels() {
-  return {
-    calls: [],
+  const models = { calls: [] }
+  Object.setPrototypeOf(models, {
     streamSimple(model, context, streamOptions) {
       this.calls.push({ model, context, streamOptions })
       return 'stream'
     },
-  }
+  })
+  return models
 }
 
 /** A stand-in for the plugin context, exposing the registry the plugin reads. */
