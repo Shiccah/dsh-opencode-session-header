@@ -29,10 +29,17 @@
 
 ## Установка
 
+Из GitHub:
+
 ```sh
-dsh plugin --profile web add /Users/user/projects/ai-path/dsh-opencode-session-header
-# или из своего git:
-dsh plugin --profile web add git+https://<хост>/<пользователь>/dsh-opencode-session-header.git
+dsh plugin --profile web add git+https://github.com/Shiccah/dsh-opencode-session-header.git
+```
+
+Локально из клона или из рабочего каталога:
+
+```sh
+git clone git@github.com:Shiccah/dsh-opencode-session-header.git
+dsh plugin --profile web add ./dsh-opencode-session-header
 ```
 
 Затем добавьте запись в `~/.dsh/profiles/web/cordis.patch.yml`:
@@ -43,6 +50,15 @@ dsh plugin --profile web add git+https://<хост>/<пользователь>/d
       name: "dsh-plugin-opencode-session-header"
 ```
 
+Установка не обязательна: загрузчик принимает и абсолютный путь к файлу, тогда
+пакет в профиль не добавляется вообще (проверено на живой композиции):
+
+```yaml
+- insert:
+    - id: opencode-session-header
+      name: "/абсолютный/путь/к/dsh-opencode-session-header/index.js"
+```
+
 Проверить состав дерева без запуска:
 
 ```sh
@@ -50,8 +66,9 @@ dsh --profile web --dump-config | grep -A 3 opencode-session-header
 ```
 
 Профиль `web` подхватывает правки patch-слоя на лету (`patchReload: live`),
-но подгруженный код плагина сам не перезагружается — после первого добавления
-перезапустите `dsh web`.
+поэтому запись монтируется в уже запущенный процесс; если в логе появилось
+`failed to import` — пакет не резолвится из каталога профиля, перезапустите
+`dsh web` после установки.
 
 ## Конфигурация (необязательно)
 
